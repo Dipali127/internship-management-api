@@ -49,7 +49,7 @@ To run the `internship` application, follow these steps:
     npm install 
     ```
 
-5. Set up any necessary environment variables or configuration files. 
+5. Set up any necessary environment variables. 
 
 6. Start the application:
 
