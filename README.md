@@ -1,4 +1,5 @@
 
+
 # internship-restfull-api
 Basic RESTful API serves as the backend for the Internship Website, facilitating interactions between students and companies. 
 
@@ -320,6 +321,10 @@ Method: PUT
 URL: /updateInternship/:internshipId
 Authorization:{token}
 Produces: application/json
+Allowed Fields for Update:
+- status: Can be set to active or closed.
+- internshipType: Can be set to remote, wfh, or wfo.
+- duration: Should be in a valid duration format (e.g., 3-6 months or 6 months).
 ````
 
 **EXAMPLE**
@@ -429,6 +434,8 @@ Produces: application/json
 ```
 
 * **Request with Query Parameters:** GET /internships/list?location[state]=Karnataka
+**Students can apply filters to query internships based on parameters such as category, internshipType, and location.**
+
 * **Response:**
 ```json
 {
@@ -520,3 +527,5 @@ Produces: application/json
     }
 }
 ```
+
+
