@@ -172,7 +172,6 @@ const updateInternship = async function (req, res) {
                 return res.status(400).send({ status: false, message: "Invalid status value" })
             }
         }
-<<<<<<< HEAD
 
         if (internshipType) {
             if (!["remote", "wfh", "wfo"].includes(internshipType)) {
@@ -180,12 +179,6 @@ const updateInternship = async function (req, res) {
             }
         }
 
-=======
-        if (internshipType && !["remote", "wfh", "wfo"].includes(internshipType)) {
-            return res.status(400).send({ status: false, message: "Invalid internshipType value" })
-        }
-        
->>>>>>> 0beca9970a14fe4d90756a5674ded7eb297b5185
         const updatedField = {
             status,
             internshipType,

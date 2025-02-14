@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 
 
 # internship-restfull-api
@@ -531,4 +529,3 @@ Produces: application/json
 ```
 
 
->>>>>>> 0beca9970a14fe4d90756a5674ded7eb297b5185
