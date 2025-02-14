@@ -1,7 +1,6 @@
 const studentModel = require('../models/studentModel');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken')
-require('dotenv').config({ path: '../.env' });
 const validation = require('../validator/validation');
 const moment = require('moment');
 
@@ -126,7 +125,7 @@ const studentLogin = async function (req, res) {
             user: "student"
         }, process.env.secretKey, { expiresIn: "1h" })
 
-        // Set the generated token in the response header
+        //  the generated token in the response header
         res.set('Authorization', `Bearer ${token}`)
 
         return res.status(200).send({ status: true, message: "Student login successfully", token: token });
@@ -138,6 +137,7 @@ const studentLogin = async function (req, res) {
 //Edit student details:
 const editStudentdetails = async function (req, res) {
     try {
+        // fetches the studentID from the route parameters
         const studentId = req.params.studentID;
         //Check if the provided 'studentId' is a valid ObjectId format.
         if (!validation.checkObjectId(studentId)) {

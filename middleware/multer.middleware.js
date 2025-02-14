@@ -5,12 +5,12 @@ const storage = multer.diskStorage({
         return cb(null, './uploads') //null is custom error added by developer
     },
     filename: function (req, file, cb) {
-        cb(null, `${Date.now()}-${file.originalname}`); //Use a timestamp to avoid name conflicts
+        cb(null, `${Date.now()}-${file.originalname}`); //Use a timestamp to avoid file name conflicts
     }
 
 })
 
-//Configure Multer to accept only PDF files
+//Ensure, Multer to accept only PDF files
 const upload = multer({
     storage: storage,
     fileFilter: function (req, file, cb) {
@@ -22,5 +22,5 @@ const upload = multer({
     }
 });
 
-//Export the Multer instance
-module.exports = upload.single("resume")
+// Export Multer middleware to handle single file upload with the field name "resume"
+module.exports = upload.single("resume");

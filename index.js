@@ -11,7 +11,7 @@ require('dotenv').config({ path: '../.env' });
 const port = process.env.PORT || 3000;
 
 //Import route
-const route = require('./router/routes');
+const route = require('./router/routes.js');
 
 const mongoose = require('mongoose');
 //Connect to MongoDB using connection string from environment variables
@@ -23,3 +23,7 @@ app.use('/', route);
 
 //Start the server and listen on the specified port
 app.listen(port, () => { console.log(`server listen on port ${port}`) });
+
+
+
+

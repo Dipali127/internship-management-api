@@ -23,7 +23,7 @@ const postInternship = async function (req, res) {
             return res.status(403).send({ status: false, message: "Unauthorized to post internship details" });
         }
 
-        let data= req.body;
+        let data = req.body;
         if (!validation.isEmpty(data)) {
             return res.status(400).send({ status: false, message: "Provide data to post internship" });
         }
@@ -59,24 +59,24 @@ const postInternship = async function (req, res) {
             return res.status(400).send({ status: false, message: "Duration is required" });
         }
 
-        if (!validation.isEmpty(location)) {
-            return res.status(400).send({ status: false, message: "Location is required" });
-        }
+        if (location) {
+            if (!validation.checkData(location.state)) {
+                return res.status(400).send({ status: false, message: "State is required" })
+            }
 
-        if (!validation.checkData(location.state)) {
-            return res.status(400).send({ status: false, message: "State is required" })
-        }
-
-        if (!validation.checkData(location.city)) {
-            return res.status(400).send({ status: false, message: "City is required" });
+            if (!validation.checkData(location.city)) {
+                return res.status(400).send({ status: false, message: "City is required" });
+            }
         }
 
         if (!validation.checkData(applicationDeadline)) {
             return res.status(400).send({ status: false, message: "ApplicationDeadline is required" });
         }
 
-        //Parsing lastDateofAppling using moment.js
+        //Parsing the lastDateofAppling using moment.js in 'YYYY-MM-DD' format.
         const lastDateofApplying = moment(applicationDeadline, 'YYYY-MM-DD');
+
+        //Checking is the parsed date isvalid
         if (!lastDateofApplying.isValid()) {
             return res.status(400).send({ status: false, message: "Invalid date format" });
         }
@@ -84,13 +84,14 @@ const postInternship = async function (req, res) {
         //Get the current date
         const currentDate = moment();
         if (!lastDateofApplying.isAfter(currentDate)) {
-            return res.status(400).send({ status: false, message: "Please provide an application deadline that is after the current date." })
+            return res.status(400).send({ status: false, message: "Application deadline must be in the future." })
         }
 
-        if (!validation.checkData(numberOfOpenings)) {
+        if (!numberOfOpenings) {
             return res.status(400).send({ status: false, message: "NumberOfOpenings is required" });
         }
 
+        //numberOfOpenings should be a valid numeric value
         if (!validation.validateInput(numberOfOpenings)) {
             return res.status(400).send({ status: false, message: "Invalid numberOfOpenings" });
         }
@@ -99,22 +100,17 @@ const postInternship = async function (req, res) {
             return res.status(400).send({ status: false, message: "Stipend is required" });
         }
 
-        //Parse the stipend string to extract minimum and maximum stipend values
-        const [minStipendStr, maxStipendStr] = stipend.split('-');
-
-        //Remove any non-numeric characters (except '-') and parse the stipend values as integers
-        const minimumStipend = parseInt(minStipendStr.trim().replace(/[^\d]/g, ''), 10);
-        const maximumStipend = parseInt(maxStipendStr.trim().replace(/[^\d]/g, ''), 10);
+        //Split the stipend string into minimum and maximum stipend values
+        const [minimumStipend, maximumStipend] = stipend.split('-');
 
 
-        //Ensure that both minimum and maximum stipend values are valid numbers
         if (isNaN(minimumStipend) || isNaN(maximumStipend)) {
-            return res.status(400).send({ status: false, message: "Invalid stipend format" });
+            return res.status(400).send({ status: false, message: "Invalid stipend format" })
         }
 
-        //structure of internship show in database
+        //Structure of internship show in database
         const newInternship = {
-            companyId : isExistcompany,
+            companyId: isExistcompany,
             category,
             position,
             internshipType,
@@ -141,21 +137,21 @@ const postInternship = async function (req, res) {
 const updateInternship = async function (req, res) {
     try {
         const internshipId = req.params.internshipId;
-       //Check if the provided 'internshipId' is a valid ObjectId format
+        //Check if the provided 'internshipId' is a valid ObjectId format
         if (!validation.checkObjectId(internshipId)) {
             return res.status(400).send({ status: false, message: "Invalid internshipId" });
         }
 
-        const isExistInternship = await internshipModel.findById({_id:internshipId});
+        const isExistInternship = await internshipModel.findById( internshipId );
         if (!isExistInternship) {
             return res.status(404).send({ status: false, message: "Internship not found" });
         }
 
-        // Check if the logged-in company is authorized to update the internship details
+        //Check if the logged-in company is authorized to update the internship details
         if (isExistInternship.companyId != req.decodedToken.companyID) {
             return res.status(403).send({ status: false, message: "Unauthorized to update internship details" });
         }
-  
+
         const data = req.body;
         //Check if request body is empty 
         if (!validation.isEmpty(data)) {
@@ -165,15 +161,17 @@ const updateInternship = async function (req, res) {
         //Destructure mandatory fields from request body
         const { status, internshipType, duration, } = data;
 
-        //validate mandatory fields
-        if (status && !["active", "closed"].includes(status)) {
-            return res.status(400).send({ status: false, message: "Invalid status value" });
+        //Validate mandatory fields
+        if (status) {
+            if (!["active", "closed"].includes(status)) {
+                return res.status(400).send({ status: false, message: "Invalid status value" })
+            }
         }
-        if (internshipType && !["remote", "wfh", "wfo"].includes(internshipType)) {
-            return res.status(400).send({ status: false, message: "Invalid internshipType value" })
-        }
-        if (duration && !validation.validateInput(duration)) {
-            return res.status(400).send({ status: false, message: "Invalid duration" });
+
+        if (internshipType) {
+            if (!["remote", "wfh", "wfo"].includes(internshipType)) {
+                return res.status(400).send({ status: false, message: "Invalid internshipType value" })
+            }
         }
 
         const updatedField = {
@@ -182,10 +180,10 @@ const updateInternship = async function (req, res) {
             duration
         };
 
-        //update the internship
+        //Update the internship
         const updatedInternship = await internshipModel.findOneAndUpdate({ _id: internshipId }, updatedField, { new: true });
 
-        return res.status(200).send({ status: true, message: "Status updated succesfully", data: updatedInternship })
+        return res.status(200).send({ status: true, message: "Updated Succesfully", data: updatedInternship })
     } catch (error) {
         return res.status(500).send({ status: false, message: error.message });
     }
@@ -197,11 +195,11 @@ const getInternship = async function (req, res) {
         const filter = req.query;
         let fetchInternship;
         //If no query parameters provided by the student
-        if (Object.keys(filter).length === 0) {
+        if (!validation.isEmpty(filter)) {
             fetchInternship = await internshipModel.find({ status: "active" }).populate('companyId');
         } else {
             const query = { status: "active" };
-        //If student provides query parameters
+            //If student provides query parameters
             if (filter.category) { query.category = filter.category };
             if (filter.internshipType) { query.internshipType = filter.internshipType };
             if (filter.location) {
@@ -211,11 +209,11 @@ const getInternship = async function (req, res) {
 
             //Get all internships based on the provided query
             fetchInternship = await internshipModel.find(query).populate('companyId');
-        } 
+        }
         //Format the response to include company name along with other internship details
         const formattedInternships = fetchInternship.map(internship => {
             return {
-                BY:internship.companyId.companyName, 
+                By: internship.companyId.companyName, 
                 category: internship.category,
                 position: internship.position,
                 internshipType: internship.internshipType,
@@ -230,9 +228,36 @@ const getInternship = async function (req, res) {
             };
         });
 
-        return res.status(200).send({ status: true, message: "Successfully fetched internships", data: formattedInternships});
+
+        return res.status(200).send({ status: true, message: "Successfully fetched internships", data: formattedInternships });
     } catch (error) {
         return res.status(500).send({ status: false, message: error.message });
     }
 }
-module.exports = { postInternship, updateInternship, getInternship}
+
+//Get internship by id:
+const getInternshipById = async function (req, res) {
+    try {
+        //Extracted internshipId from request parameters
+        const internshipId = req.params.internshipId;
+        if (!validation.checkObjectId(internshipId)) {
+            return res.status(400).send({ status: false, message: "Invalid internshipId" });
+        }
+
+        const isexistInternship = await internshipModel.findById(internshipId);
+        if (!isexistInternship) {
+            return res.status(400).send({ status: false, message: "Internship not found" });
+        }
+
+         //Check if the internship is active
+        if (isexistInternship.status !== 'active') {
+            return res.status(400).send({ status: false, message: "internship is closed" })
+        }
+
+        return res.status(200).send({ status: true, message: "Successfully fetched", data: isexistInternship })
+
+    } catch (error) {
+        return res.status(500).send({ status: false, message: error.message });
+    }
+}
+module.exports = { postInternship, updateInternship, getInternship, getInternshipById }

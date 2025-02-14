@@ -15,7 +15,7 @@ const applyInternship = async function (req, res) {
         }
 
         //Validate student existence
-        const isExistStudent = await studentModel.findById({_id:studentId});
+        const isExistStudent = await studentModel.findById(studentId);
         if (!isExistStudent) {
             return res.status(400).send({ status: false, message: "Student not found" });
         }
@@ -28,7 +28,6 @@ const applyInternship = async function (req, res) {
         //Fetch data from request body
         const { internshipId } = req.body;
 
-        //Validate request body data
         if (!validation.checkData(internshipId)) {
             return res.status(400).send({ status: false, message: "InternshipId is required" });
         }
@@ -62,6 +61,11 @@ const applyInternship = async function (req, res) {
             return res.status(500).send({ status: false, message: "Failed to upload resume to Cloudinary" });
         }
 
+        // Remove file from local storage after successful upload
+        if (fs.existsSync(resumePath)) {
+            fs.unlinkSync(resumePath);
+        }
+
         //Create the new application object
         const newApplication = {
             studentId: studentId,
@@ -73,18 +77,13 @@ const applyInternship = async function (req, res) {
         const createInternshipApply = await applicationModel.create(newApplication);
 
         //Send the success response with the new application data
-        return res.status(201).send({ status: true, message: "Application created successfully", data: createInternshipApply });
+        return res.status(201).send({ status: true, message: "Application Created Successfully", data: createInternshipApply });
     }
 
     catch (error) {
         return res.status(500).send({ status: false, message: error.message });
     } 
-    finally {
-        //Clean up the local file from your local system after processing
-        if (req.file && fs.existsSync(req.file.path)) {
-            fs.unlinkSync(req.file.path);
-        }
-    }
+    
 };
 
 //Get all student details who has applied on particular internhsip
@@ -97,7 +96,7 @@ const getAllAppliedStudents = async function (req, res) {
         }
 
         //if provided internshipId doesn't exist
-        const isExistcompany = await internshipModel.findOne({ _id: internshipId });
+        const isExistcompany = await internshipModel.findById(internshipId);
         if (!isExistcompany) {
             return res.status(400).send({ status: false, message: "Provided internship doesn't exist" });
         }

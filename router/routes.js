@@ -9,28 +9,34 @@ const uploadFile = require('../middleware/multer.middleware')
 
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>student>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>//
 //register student
-router.post('/register', studentController.registerStudent);
+router.post('/register', studentController.registerStudent)
 //login student
-router.post('/loginStudent', studentController.studentLogin);
+router.post('/loginStudent', studentController.studentLogin)
 //update student details
 router.put('/update/:studentID', jwt.authentication,studentController.editStudentdetails)
 //get Internship
-router.get('/getIntership', jwt.authentication,internshipController.getInternship);
+router.get('/getIntership', jwt.authentication,internshipController.getInternship)
+//get internship by Id
+router.get('/getInternshipById/:internshipId', jwt.authentication, internshipController.getInternshipById)
 //apply to internship
 router.post('/apply/:studentID',jwt.authentication,uploadFile,applicationController.applyInternship)
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>company>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>//
 //register company
 router.post('/registerCompany', companyController.registerCompany)
 //login company
-router.post('/loginCompany', companyController.companyLogin);
+router.post('/loginCompany', companyController.companyLogin)
 //company post internship
-router.post('/postInternship/:companyId', jwt.authentication,internshipController.postInternship);
+router.post('/postInternship/:companyId', jwt.authentication,internshipController.postInternship)
 //update internship
-router.put('/updateInternship/:internshipId', jwt.authentication, internshipController.updateInternship);
+router.put('/updateInternship/:internshipId', jwt.authentication, internshipController.updateInternship)
 //get application review
 router.get('/getAllAppliedStudents/:internshipId', jwt.authentication, applicationController.getAllAppliedStudents )
 
-//route to handle endpoint 
+
+// route for incorrect endpoints.
 router.all("/*",(req,res)=>{res.status(404).send({status:false,message:"Endpoint is not correct"})})
 
 module.exports = router;
+
+
+

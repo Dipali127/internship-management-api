@@ -3,8 +3,8 @@ const mongoose = require('mongoose')
 //Checks if an object is not empty by verifying if it contains any keys
 const isEmpty = (data) => { return Object.keys(data).length > 0 };
 
-//Checks if a value is a non-empty string
-const checkData = (data) => { return data.length > 0 || typeof (data) === String };
+// Checks if a value is a non-empty string
+const checkData = (data) => { return typeof data === 'string' && data.length > 0 };
 
 //Validates a name to ensure it contains only letters(small & capital) and space is allowed
 const checkName = (name) => /^[A-Za-z\s]+$/.test(name);

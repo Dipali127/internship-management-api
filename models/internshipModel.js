@@ -5,11 +5,11 @@ const internshipSchema = new mongoose.Schema({
         type: objectId,
         ref: 'Company'
     },
-    category:{
+    category:{   
         type:String,
         required:true
     },
-    position: {
+    position: {  
         type: String,
         required: true
     },
