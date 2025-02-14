@@ -146,6 +146,7 @@ Produces: application/json
     }
 }
 ```
+
 **2) Login Student**
 
 Send a POST request to login an exisiting student.
@@ -166,6 +167,7 @@ Produces: application/json
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdHVkZW50SUQiOiI2NjU1ZDk1OWNlMTYzOWZiNWUyMmJhYTQiLCJ1c2VyIjoic3R1ZGVudCIsImlhdCI6MTcxNjkwODE1NywiZXhwIjoxNzE2OTExNzU3fQ.T91NkBKWxKz-XsnHuoPjFXlBTvgX9Gd4oEcTMAWhkyE"
 }
 ```
+
 **3) Update student details**
 
 Send a PUT request to update an exisiting student's detail.
@@ -235,6 +237,7 @@ Produces: application/json
     }
 }
 ```
+
 **2) Login Company**
 
 Send a POST request to login an exisiting company.
@@ -256,7 +259,6 @@ Produces: application/json
 }
 ```
 
-
 ## Internship Routes
 **1) Post an Internship**
 
@@ -267,7 +269,7 @@ The company must be logged in to post an internship.
 ````
 Method: POST 
 URL: /postInternship/:companyId
-Authorization:{token}
+Authorization:Bearer {token}
 Produces: application/json
 ````
 
@@ -310,6 +312,7 @@ Produces: application/json
     }
 }
 ```
+
 **2) Update an internship**
 
 Send a PUT request to update an existing internship.
@@ -319,7 +322,7 @@ The company must be logged in to update an existing internship.
 ````
 Method: PUT 
 URL: /updateInternship/:internshipId
-Authorization:{token}
+Authorization:Bearer {token}
 Produces: application/json
 Allowed Fields for Update:
 - status: Can be set to active or closed.
@@ -357,6 +360,7 @@ Allowed Fields for Update:
     }
 }
 ```
+
 **3) Get list of all internship**
 
 Send a GET request to retrieve the list of all available internships. Optionally, you can include query parameters to filter the results based on specific criteria.
@@ -366,7 +370,7 @@ Student must be logged in to fetch internships
 ````
 Method: GET 
 URL: /internships/list
-Authorization: {token}
+Authorization: Bearer {token}
 Produces: application/json
 ````
 
@@ -462,6 +466,51 @@ Produces: application/json
     ]
 }
 ```
+
+**3) Get details of a particular internship**
+
+Retrieve detailed information about a specific internship by its ID.
+
+Student must be logged in to fetch internships
+
+````
+Method: GET 
+URL: /getInternshipById/:internshipId
+Authorization: Bearer {token}
+Produces: application/json
+````
+
+**EXAMPLE**
+* **Request:** GET getInternshipById/6655faad77768eee4437743d
+* **Response:**
+```json
+   {
+    "status": true,
+    "message": "Successfully fetched",
+    "data": {
+        "location": {
+            "state": "Karnataka",
+            "city": "Bengaluru"
+        },
+        "_id": "6655faad77768eee4437743d",
+        "companyId": "6655f5c477768eee4437742f",
+        "category": "Web Development",
+        "position": "java Developer",
+        "internshipType": "wfo",
+        "skillsRequired": "Good knowledge of java, sql database and have a good grasp on DSA",
+        "eligibility": "B.Tech",
+        "duration": "3-6 months",
+        "applicationDeadline": "2024-09-08T07:00:00.000Z",
+        "numberOfOpenings": 12,
+        "stipend": "20000-30000",
+        "status": "active",
+        "createdAt": "2024-05-28T15:39:25.952Z",
+        "updatedAt": "2024-05-28T15:39:25.952Z",
+        "__v": 0
+    }
+}
+```
+
 ## Application Routes
 **1) Apply on Internship**
 
@@ -474,7 +523,7 @@ The student's resume should be uploaded as form data.
 ````
 Method: POST 
 URL: /apply/:studentID
-Authorization: {token}
+Authorization: Bearer {token}
 Produces: application/json
 ````
 
@@ -496,6 +545,7 @@ Produces: application/json
     }
 }
 ```
+
 **2) Get all applied student's applications**
 
 Send a GET request to fetch a list of applications for a specific internship.
@@ -505,7 +555,7 @@ The company must be logged in to retrieve the applications for an internship.
 ````
 Method: GET 
 URL: /getAllAppliedStudents/:internshipId
-Authorization:{token}
+Authorization:Bearer {token}
 Produces: application/json
 ````
 
