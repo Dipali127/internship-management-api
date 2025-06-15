@@ -1,7 +1,7 @@
 
 
-# internship-restfull-api
-Basic RESTful API serves as the backend for the Internship Website, facilitating interactions between students and companies. 
+# internship-portal-api
+A basic RESTful API that serves as the backend for an Internship Website, facilitating interactions between students and companies.
 
  * **Student Functionality:**
 
