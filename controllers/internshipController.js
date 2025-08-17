@@ -13,8 +13,9 @@ const postInternship = async function (req, res) {
         }
 
         const isExistcompany = await companyModel.findById(companyId);
+
         //if provided companyId company doesn't exist
-        if (!validation.isEmpty(isExistcompany)) {
+        if (!isExistcompany) {
             return res.status(404).send({ status: false, message: "Company not found" });
         }
 
@@ -24,11 +25,10 @@ const postInternship = async function (req, res) {
         }
 
         let data = req.body;
-        if (!validation.isEmpty(data)) {
+        if (validation.isEmpty(data)) {
             return res.status(400).send({ status: false, message: "Provide data to post internship" });
         }
 
-        //Destructure mandatory fields from request body
         const { category, position, internshipType, skillsRequired, eligibility, duration, location, applicationDeadline,
             numberOfOpenings, stipend, status } = data;
 
@@ -47,7 +47,7 @@ const postInternship = async function (req, res) {
             return res.status(409).send({ status: false, message: "An internship with the same position already exists for this company" });
         }
 
-        if (!validation.checkData(skillsRequired)) {
+        if (!Array.isArray(skillsRequired) || skillsRequired.length === 0) {
             return res.status(400).send({ status: false, message: "SkillsRequired is required" });
         }
 
@@ -59,14 +59,20 @@ const postInternship = async function (req, res) {
             return res.status(400).send({ status: false, message: "Duration is required" });
         }
 
-        if (location) {
-            if (!validation.checkData(location.state)) {
-                return res.status(400).send({ status: false, message: "State is required" })
-            }
+        if (!location || typeof location !== 'object') {
+            return res.status(400).send({ status: false, message: "Location is required and must be an object" });
+        }
 
-            if (!validation.checkData(location.city)) {
-                return res.status(400).send({ status: false, message: "City is required" });
-            }
+        if (!validation.checkData(location.country)) {
+            return res.status(400).send({ status: false, message: "Country is required" })
+        }
+
+        if (!validation.checkData(location.state)) {
+            return res.status(400).send({ status: false, message: "State is required" })
+        }
+
+        if (!validation.checkData(location.city)) {
+            return res.status(400).send({ status: false, message: "City is required" });
         }
 
         if (!validation.checkData(applicationDeadline)) {
@@ -107,7 +113,7 @@ const postInternship = async function (req, res) {
         if (isNaN(minimumStipend) || isNaN(maximumStipend)) {
             return res.status(400).send({ status: false, message: "Invalid stipend format" })
         }
-        
+
         // Check if status is provided and validate it only if it is sent by company
         if (status && !["active", "closed"].includes(status)) {
             return res.status(400).send({ status: false, message: "Invalid status value" });
@@ -115,7 +121,7 @@ const postInternship = async function (req, res) {
 
         //Structure of internship show in database
         const newInternship = {
-            companyId: isExistcompany,
+            companyId: isExistcompany._id,
             category,
             position,
             internshipType,
@@ -147,7 +153,7 @@ const updateInternship = async function (req, res) {
             return res.status(400).send({ status: false, message: "Invalid internshipId" });
         }
 
-        const isExistInternship = await internshipModel.findById( internshipId );
+        const isExistInternship = await internshipModel.findById(internshipId);
         if (!isExistInternship) {
             return res.status(404).send({ status: false, message: "Internship not found" });
         }
@@ -159,34 +165,46 @@ const updateInternship = async function (req, res) {
 
         const data = req.body;
         //Check if request body is empty 
-        if (!validation.isEmpty(data)) {
+        if (validation.isEmpty(data)) {
             return res.status(400).send({ status: false, message: "No fields provided for update" });
         }
 
-        //Destructure mandatory fields from request body
-        const { status, internshipType, duration, } = data;
+        const { status, internshipType, duration, skillsRequired } = data;
+        let updateData = {};
 
         //Validate mandatory fields
         if (status) {
             if (!["active", "closed"].includes(status)) {
                 return res.status(400).send({ status: false, message: "Invalid status value" })
             }
+
+            updateData.status = status;
         }
 
         if (internshipType) {
             if (!["remote", "wfh", "wfo"].includes(internshipType)) {
                 return res.status(400).send({ status: false, message: "Invalid internshipType value" })
             }
+
+            updateData.internshipType = internshipType;
         }
 
-        const updatedField = {
-            status,
-            internshipType,
-            duration
-        };
+        if (duration) {
+            updateData.duration = duration;
+        }
+
+        if (skillsRequired) {
+            if (!Array.isArray(skillsRequired)) {
+                return res.status(400).send({ status: false, message: "Invalid skillsRequired format" });
+            }
+
+            updateData.$addToSet = {
+                skillsRequired: { $each: skillsRequired }
+            };
+        }
 
         //Update the internship
-        const updatedInternship = await internshipModel.findOneAndUpdate({ _id: internshipId }, updatedField, { new: true });
+        const updatedInternship = await internshipModel.findOneAndUpdate({ _id: internshipId }, updateData, { new: true });
 
         return res.status(200).send({ status: true, message: "Updated Succesfully", data: updatedInternship })
     } catch (error) {
@@ -198,41 +216,35 @@ const updateInternship = async function (req, res) {
 const getInternship = async function (req, res) {
     try {
         const filter = req.query;
-        let fetchInternship;
-        //If no query parameters provided by the student
-        if (!validation.isEmpty(filter)) {
-            fetchInternship = await internshipModel.find({ status: "active" }).populate('companyId');
-        } else {
-            const query = { status: "active" };
-            //If student provides query parameters
-            if (filter.category) { query.category = filter.category };
-            if (filter.internshipType) { query.internshipType = filter.internshipType };
-            if (filter.location) {
-                if (filter.location.state) query['location.state'] = filter.location.state;
-                if (filter.location.city) query['location.city'] = filter.location.city;
-            }
+        console.log(filter);
+        //Pagination:
+        const page = Number(filter.page) || 1;
+        const limit = Number(filter.limit) || 2;
+        const skip = (page - 1) * limit;
 
-            //Get all internships based on the provided query
-            fetchInternship = await internshipModel.find(query).populate('companyId');
+        const query = { status: "active" };
+        //If student provides query parameters
+        if (filter.category) { query.category = filter.category };
+        if (filter.position) { query.position = filter.position };
+        if (filter.internshipType) { query.internshipType = filter.internshipType };
+        if (filter.location) {
+            if (filter.location.country) query['location.country'] = filter.location.country;
+            if (filter.location.state) query['location.state'] = filter.location.state;
+            if (filter.location.city) query['location.city'] = filter.location.city;
         }
+
+        //Get all internships based on the provided query
+        const fetchInternship = await internshipModel.find(query).populate('companyId').skip(skip).limit(limit);
+
         //Format the response to include company name along with other internship details
         const formattedInternships = fetchInternship.map(internship => {
             return {
-                By: internship.companyId.companyName, 
+                By: internship.companyId.companyName,
                 category: internship.category,
                 position: internship.position,
-                internshipType: internship.internshipType,
-                skillsRequired: internship.skillsRequired,
-                eligibility: internship.eligibility,
-                duration: internship.duration,
-                location: internship.location,
-                applicationDeadline: internship.applicationDeadline,
-                numberOfOpenings: internship.numberOfOpenings,
-                stipend: internship.stipend,
                 status: internship.status
             };
         });
-
 
         return res.status(200).send({ status: true, message: "Successfully fetched internships", data: formattedInternships });
     } catch (error) {
@@ -249,17 +261,33 @@ const getInternshipById = async function (req, res) {
             return res.status(400).send({ status: false, message: "Invalid internshipId" });
         }
 
-        const isexistInternship = await internshipModel.findById(internshipId);
+        const isexistInternship = await internshipModel.findById(internshipId).populate('companyId');
         if (!isexistInternship) {
             return res.status(400).send({ status: false, message: "Internship not found" });
         }
 
-         //Check if the internship is active
-        if (isexistInternship.status !== 'active') {
-            return res.status(400).send({ status: false, message: "internship is closed" })
+        if (isexistInternship.status !== "active") {
+            return res.status(400).send({ status: false, message: "Internship is not active" });
         }
 
-        return res.status(200).send({ status: true, message: "Successfully fetched", data: isexistInternship })
+        const formattedInternships = {
+            companyName: isexistInternship.companyId.companyName,
+            companyEmail: isexistInternship.companyId.companyEmail,
+            companyContact: isexistInternship.companyId.contactNumber,
+            category: isexistInternship.category,
+            position: isexistInternship.position,
+            internshipType: isexistInternship.internshipType,
+            skillsRequired: isexistInternship.skillsRequired,
+            eligibility: isexistInternship.eligibility,
+            duration: isexistInternship.duration,
+            location: isexistInternship.location,
+            applicationDeadline: isexistInternship.applicationDeadline,
+            numberOfOpenings: isexistInternship.numberOfOpenings,
+            stipend: isexistInternship.stipend,
+            status: isexistInternship.status
+        }
+
+        return res.status(200).send({ status: true, message: "Successfully fetched", data: formattedInternships })
 
     } catch (error) {
         return res.status(500).send({ status: false, message: error.message });

@@ -8,11 +8,11 @@ const moment = require('moment');
 const registerStudent = async function (req, res) {
     try {
         const data = req.body;
-        //Check if request body is empty 
-        if (!validation.isEmpty(data)) {
+        //Check if request body is empty
+        if (validation.isEmpty(data)) {
             return res.status(400).send({ status: false, message: "Provide details for registration" });
         }
-        //Destructure mandatory fields from request body
+
         const { name, email, password, mobileNumber } = data;
 
         //Validate mandatory details
@@ -53,11 +53,6 @@ const registerStudent = async function (req, res) {
             return res.status(400).send({ status: false, message: "MobileNumber is required" });
         }
 
-        if (!validation.checkMobile(mobileNumber)) {
-            return res.status(400).send({ status: false, message: "Invalid mobileNumber" });
-        }
-
-        //Check if the provided mobile number already exists in the database
         const uniqueMobile = await studentModel.findOne({ mobileNumber: mobileNumber });
         if (uniqueMobile) {
             return res.status(409).send({ status: false, message: "Provided mobile number already exist" });
@@ -71,9 +66,8 @@ const registerStudent = async function (req, res) {
             mobileNumber: mobileNumber
         }
 
-        //Save the new student record in the database
         const createStudent = await studentModel.create(newDetails);
-        return res.status(200).send({ status: true, message: "Student registered successfully", studentData: createStudent });
+        return res.status(201).send({ status: true, message: "Student registered successfully", data: createStudent });
     } catch (error) {
         return res.status(500).send({ status: false, message: error.message });
     }
@@ -84,11 +78,10 @@ const studentLogin = async function (req, res) {
     try {
         const data = req.body;
         //Check if request body is empty 
-        if (!validation.isEmpty(data)) {
+        if (validation.isEmpty(data)) {
             return res.status(400).send({ status: false, message: "Provide details for login" });
         }
 
-        //Destructure email and password from request body 
         const { email, password } = data;
 
         if (!validation.checkData(email)) {
@@ -99,7 +92,7 @@ const studentLogin = async function (req, res) {
             return res.status(400).send({ status: false, message: "Invalid email" });
         }
 
-        //Check if the provided email doesn't present in database
+        //Check if the provided email doesn't exist in database
         const isemailExist = await studentModel.findOne({ email: email });
         if (!isemailExist) {
             return res.status(404).send({ status: false, message: "Email not found" });
@@ -116,7 +109,7 @@ const studentLogin = async function (req, res) {
         //Compare hashedPassword with the student provided password
         const comparePassword = await bcrypt.compare(password, isemailExist.password);
         if (!comparePassword) {
-            return res.status(404).send({ status: false, message: "Incorrect password" })
+            return res.status(401).send({ status: false, message: "Incorrect password" })
         }
 
         //Generate token for student
@@ -125,7 +118,7 @@ const studentLogin = async function (req, res) {
             user: "student"
         }, process.env.secretKey, { expiresIn: "1h" })
 
-        //  the generated token in the response header
+        //send the generated token in the response header
         res.set('Authorization', `Bearer ${token}`)
 
         return res.status(200).send({ status: true, message: "Student login successfully", token: token });
@@ -135,6 +128,7 @@ const studentLogin = async function (req, res) {
 }
 
 //Edit student details:
+//Note: This method is triggered when student applies to internship (not profile editing)
 const editStudentdetails = async function (req, res) {
     try {
         // fetches the studentID from the route parameters
@@ -145,33 +139,33 @@ const editStudentdetails = async function (req, res) {
         }
 
         const isExiststudent = await studentModel.findById(studentId);
-        //if provided studentId student doesn't exist
         if (!isExiststudent) {
             return res.status(400).send({ status: false, message: "Student not found" });
         }
 
-        //authorization check
         if (isExiststudent._id != req.decodedToken.studentID) {
             return res.status(403).send({ status: false, message: "Unauthorized to update student details" });
         }
 
         const data = req.body;
-        if (!validation.isEmpty(data)) {
-            return res.status(400).send({ status: false, message: "Provide data to edit/update details" })
-        } 
-        //Destructure mandatory fields from request body
-        const { DOB, collegeName, yearOfPassout, areaOfInterest, state, city } = data;
+        if (validation.isEmpty(data)) {
+            return res.status(400).send({ status: false, message: "Provide data to edit/update student details" })
+        }
+
+        const { DOB, collegeName, yearOfPassout, areaOfInterest, address } = data;
 
         if (!validation.checkData(DOB)) {
             return res.status(400).send({ status: false, message: "DOB is required" });
         }
 
         //Parsing DOB using moment.js
-        const dob = moment(DOB, 'YYYY-MM-DD');
+        const parsedDOB = moment(DOB, 'YYYY-MM-DD', true);
 
-        if (!dob.isValid()) {
+        if (!parsedDOB.isValid()) {
             return res.status(400).send({ status: false, message: "Invalid date format" });
         }
+
+        const dob = parsedDOB.toDate();
 
         if (!validation.checkData(collegeName)) {
             return res.status(400).send({ status: false, message: "CollegeName is required" });
@@ -182,7 +176,7 @@ const editStudentdetails = async function (req, res) {
         }
 
         // Check if yearOfPassout is not a number
-        if (isNaN(yearOfPassout)) {
+        if (!validation.validateInput(yearOfPassout)) {
             return res.status(400).send({ status: false, message: "YearOfPassout must be a number" });
         }
 
@@ -190,22 +184,33 @@ const editStudentdetails = async function (req, res) {
             return res.status(400).send({ status: false, message: "AreaOfInterest is required" });
         }
 
-        if (!validation.checkData(state)) {
+        if (!address || typeof address !== 'object') {
+            return res.status(400).send({ status: false, message: "Address is required and must be an object" });
+        }
+
+        if (!validation.checkData(address.country)) {
+            return res.status(400).send({ status: false, message: "Country is required" });
+        }
+
+        if (!validation.checkData(address.state)) {
             return res.status(400).send({ status: false, message: "State is required" });
         }
 
-        if (!validation.checkData(city)) {
+        if (!validation.checkData(address.city)) {
             return res.status(400).send({ status: false, message: "City is required" });
         }
 
         //Prepare the new edit/update details 
         const additionalData = {
-            DOB,
+            DOB: dob,
             collegeName,
             yearOfPassout,
             areaOfInterest,
-            state,
-            city
+            address: {
+                country: address.country,
+                state: address.state,
+                city: address.city
+            }
         }
 
         //Save the edit student record in the database
@@ -218,4 +223,4 @@ const editStudentdetails = async function (req, res) {
     }
 }
 
-module.exports = { registerStudent, studentLogin, editStudentdetails};
+module.exports = { registerStudent, studentLogin, editStudentdetails };

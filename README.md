@@ -1,6 +1,6 @@
 
 
-# internship-portal-api
+# Internship Management API
 A basic RESTful API that serves as the backend for an Internship Website, facilitating interactions between students and companies.
 
  * **Student Functionality:**

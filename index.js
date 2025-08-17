@@ -11,7 +11,10 @@ require('dotenv').config({ path: '../.env' });
 const port = process.env.PORT || 3000;
 
 //Import route
-const route = require('./router/routes.js');
+const studentRoute = require('./router/studentRoutes.js');
+const companyRoute = require('./router/companyRoutes.js');
+const internshipRoute = require('./router/internshipRoutes.js');
+const applicationRoute = require('./router/applicationRoutes.js');
 
 const mongoose = require('mongoose');
 //Connect to MongoDB using connection string from environment variables
@@ -19,10 +22,20 @@ mongoose.connect(process.env.clusterString,).then(() => { console.log("mongoDB c
     .catch((error) => { console.log(error.message) });
 
 //Use routes defined in the 'router/routes' module
-app.use('/', route);
+app.use('/student',studentRoute);
+app.use('/company', companyRoute);
+app.use('/internship', internshipRoute);
+app.use('/application', applicationRoute);
+
+// route for incorrect endpoints.
+app.all("/*",(req,res)=>{res.status(404).send({status:false,message:"Endpoint is not correct"})})
 
 //Start the server and listen on the specified port
-app.listen(port, () => { console.log(`server listen on port ${port}`) });
+app.listen(port, () => { console.log(`Server listening on port ${port}`) });
+
+
+
+
 
 
 

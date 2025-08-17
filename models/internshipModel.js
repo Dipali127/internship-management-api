@@ -19,7 +19,7 @@ const internshipSchema = new mongoose.Schema({
         default: "wfo"
     },
     skillsRequired: {
-        type: String, 
+        type: [String], 
         required: true
     },
     eligibility: {
@@ -31,6 +31,10 @@ const internshipSchema = new mongoose.Schema({
         required: true
     },
     location: {
+        country:{
+            type:String,
+            required:true
+        },
         state:{
             type:String,
             required:true

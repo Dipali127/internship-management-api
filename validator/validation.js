@@ -1,7 +1,7 @@
 //validation functions:
 const mongoose = require('mongoose')
 //Checks if an object is not empty by verifying if it contains any keys
-const isEmpty = (data) => { return Object.keys(data).length > 0 };
+const isEmpty = (data) => Object.keys(data).length === 0;
 
 // Checks if a value is a non-empty string
 const checkData = (data) => { return typeof data === 'string' && data.length > 0 };
@@ -18,10 +18,6 @@ const checkPassword = (password) => {
     return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\\-]).{8,}$/.test(password);
 };
 
-//Validates a mobile number to ensure it starts with a digit from 6 to 9, followed by exactly 9 digits
-//(any digit from 0 to 9) with a total length of 10 digits.
-const checkMobile = (mobileNumber) => { return /^[6-9]\d{9}$/.test(mobileNumber) }
-
 //Validate input data consists only of numbers.
 const validateInput = (input) => /^[0-9\s]+$/.test(input);
 
@@ -34,7 +30,7 @@ const validateSalaryFormat = (input) => {
 const checkObjectId = (id) => { return mongoose.isValidObjectId(id); }
 
 module.exports = {
-    isEmpty, checkData, checkName, checkEmail, checkPassword, validateInput, checkMobile,
+    isEmpty, checkData, checkName, checkEmail, checkPassword, validateInput, 
     validateSalaryFormat, checkObjectId
 }
 

@@ -30,12 +30,18 @@ const studentSchema = new mongoose.Schema({
     areaOfInterest: {
         type: String
     },
-    state: {
-        type: String
-    },
-    city: {
-        type: String
+    address: {
+        country: {
+            type: String
+        },
+        state: {
+            type: String
+        },
+        city: {
+            type: String
+        }
     }
+
 
 }, { timestamps: true })
 

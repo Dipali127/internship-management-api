@@ -9,18 +9,16 @@ const fs = require('fs');
 const applyInternship = async function (req, res) {
     try {
         const studentId = req.params.studentID;
-       //Check if the provided 'studentId' is a valid ObjectId format.
+        //Check if the provided 'studentId' is a valid ObjectId format.
         if (!validation.checkObjectId(studentId)) {
             return res.status(400).send({ status: false, message: "Invalid studentId" });
         }
 
-        //Validate student existence
         const isExistStudent = await studentModel.findById(studentId);
         if (!isExistStudent) {
             return res.status(400).send({ status: false, message: "Student not found" });
         }
 
-        //Check authorization
         if (isExistStudent._id != req.decodedToken.studentID) {
             return res.status(403).send({ status: false, message: "Unauthorized to apply for the internship" });
         }
@@ -29,9 +27,9 @@ const applyInternship = async function (req, res) {
         const { internshipId } = req.body;
 
         if (!validation.checkData(internshipId)) {
-            return res.status(400).send({ status: false, message: "InternshipId is required" });
+            return res.status(400).send({ status: false, message: "internshipid is required" });
         }
-
+        
         if (!validation.checkObjectId(internshipId)) {
             return res.status(400).send({ status: false, message: "Invalid internshipId" });
         }
@@ -42,20 +40,24 @@ const applyInternship = async function (req, res) {
             return res.status(400).send({ status: false, message: "Provided internshipId internship doesn't exist" });
         }
 
-        //Check if the student has already applied for this internship
-        const existingApplication = await applicationModel.findOne({ studentId:studentId,internshipId: internshipId });
-        if (existingApplication) {
-            return res.status(400).send({ status: false, message: "You have already applied for this internship" });
+        if (isExistInternship.status !== "active") {
+            return res.status(400).send({ status: false, message: "Internship is not active" });
         }
 
-        //multer uploaded file inside req.file property
+        //Check if the student has already applied for this internship
+        const existingApplication = await applicationModel.findOne({ studentId: studentId, internshipId: internshipId });
+        if (existingApplication) {
+            return res.status(409).send({ status: false, message: "You have already applied for this internship" });
+        }
+
+        // Multer stores the uploaded resume file inside req.file
         const resumePath = req.file.path;
 
         if (!resumePath) {
             return res.status(400).send({ status: false, message: "Resume file is required" });
         }
 
-        //upload file in cloudinary
+        // Upload the resume file to Cloudinary and get the hosted URL
         const cloudinaryResponse = await uploadFileOnCloudinary(resumePath);
         if (!cloudinaryResponse) {
             return res.status(500).send({ status: false, message: "Failed to upload resume to Cloudinary" });
@@ -82,8 +84,8 @@ const applyInternship = async function (req, res) {
 
     catch (error) {
         return res.status(500).send({ status: false, message: error.message });
-    } 
-    
+    }
+
 };
 
 //Get all student details who has applied on particular internhsip

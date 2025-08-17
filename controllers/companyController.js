@@ -11,7 +11,7 @@ const validation = require('../validator/validation.js');
 const registerCompany = async function (req, res) {
     try {
         const data = req.body;
-        if (!validation.isEmpty(data)) {
+        if (validation.isEmpty(data)) {
             return res.status(400).send({ status: false, message: "Provide details for registration" });
         }
 
@@ -29,8 +29,8 @@ const registerCompany = async function (req, res) {
         if (!validation.checkEmail(companyEmail)) {
             return res.status(400).send({ status: false, message: "Invalid email" });
         }
-
-        //Check if the provided email already exist in database
+         
+        //Check if the provided email already exist in database        
         const existingEmail = await companyModel.findOne({ companyEmail: companyEmail });
         if (existingEmail) {
             return res.status(409).send({ status: false, message: "The provided email already exists" });
@@ -50,10 +50,6 @@ const registerCompany = async function (req, res) {
         if (!validation.checkData(contactNumber)) {
             return res.status(400).send({ status: false, message: "Contact number is required" });
         }
-
-        if (!validation.checkMobile(contactNumber)) {
-            return res.status(400).send({ status: false, message: "Invalid contact number" });
-        }
        
         //Check if the provided contact number already exist in database
         const existingContact = await companyModel.findOne({contactNumber:contactNumber});
@@ -70,9 +66,9 @@ const registerCompany = async function (req, res) {
             contactNumber: contactNumber
         };
 
-        //Save the new student record in the database
+        //Prepare the new student details with the encrypted password
         const createCompany = await companyModel.create(newDetails);
-        return res.status(201).send({ status: true, message: "Company Registered Successfully", companyData: createCompany });
+        return res.status(201).send({ status: true, message: "Company Registered Successfully", data: createCompany });
     } catch (error) {
         return res.status(500).send({ status: false, message: error.message });
     }
@@ -82,7 +78,7 @@ const registerCompany = async function (req, res) {
 const companyLogin = async function (req, res) {
     try {
         const data = req.body;
-        if (!validation.isEmpty(data)) {
+        if (validation.isEmpty(data)) {
             return res.status(400).send({ status: false, message: "Provide details for login" });
         }
 
