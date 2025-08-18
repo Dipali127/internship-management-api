@@ -108,3 +108,6 @@ To run the `internship` application, follow these steps:
         - `DATABASE_CLUSTER_STRING`: Set the variable to the connection string for your MongoDB database cluster.
         - `secretKey`:  Set the variable to the secret key used for JWT authentication.
         - `cloudinary_credentials`: Set the CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET variables with your individual Cloudinary credentials for uploading files.
+
+## Contributing
+Contributions are welcome! If you’d like to improve this project, feel free to fork the repo and submit a pull request.  
