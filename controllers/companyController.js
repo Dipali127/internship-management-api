@@ -66,7 +66,6 @@ const registerCompany = async function (req, res) {
             contactNumber: contactNumber
         };
 
-        //Prepare the new company details with the encrypted password
         const createCompany = await companyModel.create(newDetails);
         return res.status(201).send({ status: true, message: "Company Registered Successfully", data: createCompany });
     } catch (error) {
