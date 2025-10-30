@@ -66,7 +66,7 @@ const registerCompany = async function (req, res) {
             contactNumber: contactNumber
         };
 
-        //Prepare the new student details with the encrypted password
+        //Prepare the new company details with the encrypted password
         const createCompany = await companyModel.create(newDetails);
         return res.status(201).send({ status: true, message: "Company Registered Successfully", data: createCompany });
     } catch (error) {
@@ -113,7 +113,7 @@ const companyLogin = async function (req, res) {
             return res.status(400).send({ status: false, message: "Invalid password" });
         }
 
-        //Generate token for student
+        //Generate token for company
         const token = jwt.sign({
             companyID: isEmailExist._id.toString(),
             user: "company"
