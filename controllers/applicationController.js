@@ -50,20 +50,20 @@ const applyInternship = async function (req, res) {
             return res.status(409).send({ status: false, message: "You have already applied for this internship" });
         }
 
-        // Multer stores the uploaded resume file inside req.file
+        //Multer stores the uploaded resume file inside req.file
         const resumePath = req.file.path;
 
         if (!resumePath) {
             return res.status(400).send({ status: false, message: "Resume file is required" });
         }
 
-        // Upload the resume file to Cloudinary and get the hosted URL
+        //Upload the resume file to Cloudinary and get the hosted URL
         const cloudinaryResponse = await uploadFileOnCloudinary(resumePath);
         if (!cloudinaryResponse) {
             return res.status(500).send({ status: false, message: "Failed to upload resume to Cloudinary" });
         }
 
-        // Remove file from local storage after successful upload
+        //Remove file from local storage after successful upload
         if (fs.existsSync(resumePath)) {
             fs.unlinkSync(resumePath);
         }

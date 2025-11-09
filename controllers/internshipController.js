@@ -17,7 +17,7 @@ const generateAIDescription = async function (req, res) {
         }
 
         const { position, skillsRequired, description } = data;
-        // Validate required fields
+        //Validate required fields
         if (!validation.checkData(position)) {
             return res.status(400).send({ status: false, message: "Position is required" });
         }
@@ -27,7 +27,7 @@ const generateAIDescription = async function (req, res) {
         }
 
 
-        // Build prompt for Gemini AI
+        //Build prompt for Gemini AI
         let prompt = description;
         if (!validation.checkData(description)) {
             prompt = `Generate a short, professional, and engaging internship description (around 2-3 
@@ -158,7 +158,7 @@ const postInternship = async function (req, res) {
             return res.status(400).send({ status: false, message: "Invalid stipend format" })
         }
 
-        // Check if status is provided and validate it only if it is sent by company
+        //Check if status is provided and validate it only if it is sent by company
         if (status && !["active", "closed"].includes(status)) {
             return res.status(400).send({ status: false, message: "Invalid status value" });
         }
