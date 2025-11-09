@@ -4,6 +4,8 @@ const internshipController = require('../controllers/internshipController');
 const jwt = require('../middleware/auth')
 
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>company>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>//
+//generate AI description for internship
+router.post('/generateAIDescription', jwt.authentication, internshipController.generateAIDescription)
 //company post internship
 router.post('/postInternship/:companyId', jwt.authentication,internshipController.postInternship)
 //update internship

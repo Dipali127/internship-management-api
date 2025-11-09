@@ -9,11 +9,12 @@ A RESTful backend system designed to simplify internship management by connectin
     * After authorization, students can edit/update their profile details.
     * Students can view available internships and apply for them after updating their profile details.
    
- * **Company Functionality:** 
+* **Company Functionality:** 
+  * Companies can register and log in to their accounts.
+  * After authorization, companies can post new internships and update existing ones.
+  * Companies can view applications submitted by students for their posted internships.
+  * **AI-Powered Description:** Companies can auto-generate concise and professional internship descriptions using integrated Gemini AI.
 
-    * Companies can register and log in to their accounts.
-   * After authorization, companies can post new internships and update existing ones.
-   * Companies can view applications submitted by students for their posted internships.
 
 ## Tech Stack
 * **Backend Framework:** Node.js + Express
@@ -50,6 +51,7 @@ Internship-Management-API/
 * `POST /company/login` → Login company  
 
 ### Internship APIs
+* `POST /internship/generateAIDescription` → AI generates a short, concise description for an internship post
 * `POST /internship/postInternship/:companyId` → Company posts an internship  
 * `PUT /internship/updateInternship/:internshipId` → Company updates an internship  
 * `GET /internship/getInternship` → Student gets list of all internships  

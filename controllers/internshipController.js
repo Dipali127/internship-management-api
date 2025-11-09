@@ -2,6 +2,50 @@ const internshipModel = require('../models/internshipModel');
 const companyModel = require('../models/companyModel');
 const validation = require('../validator/validation');
 const moment = require('moment');
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+//Generate AI Description for internship post:
+const generateAIDescription = async function (req, res) {
+    try {
+        const data = req.body;
+        if (validation.isEmpty(data)) {
+            return res.status(400).send({
+                status: false, message:
+                    "Provide data to generate AI description about internship post"
+            });
+        }
+
+        const { position, skillsRequired, description } = data;
+        // Validate required fields
+        if (!validation.checkData(position)) {
+            return res.status(400).send({ status: false, message: "Position is required" });
+        }
+
+        if (!Array.isArray(skillsRequired) || skillsRequired.length === 0) {
+            return res.status(400).send({ status: false, message: "SkillsRequired is required" });
+        }
+
+
+        // Build prompt for Gemini AI
+        let prompt = description;
+        if (!validation.checkData(description)) {
+            prompt = `Generate a short, professional, and engaging internship description (around 2-3 
+            lines) for the position of ${position}, requiring skills in ${skillsRequired.join(", ")}.`}
+
+        //Logic to generate AI description about internship post
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        const result = await model.generateContent(prompt);
+
+        return res.status(200).send({
+            status: true, message: "AI Description generated successfully",
+            data: result.response.text()
+        })
+
+    } catch (error) {
+        return res.status(500).send({ status: false, message: error.message });
+    }
+}
 
 //Create internship:
 const postInternship = async function (req, res) {
@@ -293,4 +337,4 @@ const getInternshipById = async function (req, res) {
         return res.status(500).send({ status: false, message: error.message });
     }
 }
-module.exports = { postInternship, updateInternship, getInternship, getInternshipById }
+module.exports = { generateAIDescription, postInternship, updateInternship, getInternship, getInternshipById }
