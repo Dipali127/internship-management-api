@@ -3,22 +3,22 @@ const jwt = require('jsonwebtoken');
 const authentication = async function(req, res, next){
     try{
         const token = req.header('Authorization');
-        // Check if token is provided
+        //Check if token is provided
         if(!token){
             return res.status(400).send({status: false, message:"Provide token"});
         }
 
-        // Split the token to remove the "Bearer" prefix
+        //Split the token to remove the "Bearer" prefix
         const newToken = token.split(' ')[1];
 
-        // Verify the token
+        //Verify the token
         jwt.verify(newToken, process.env.secretKey, (error, decodedToken) => {
             if(error){
                 return res.status(400).send({status:false, message:"token is invalid or expired"})
             }
             
             req.decodedToken = decodedToken;
-            // Proceed to the next middleware or route handler
+            //Proceed to the next middleware or route handler
             next();
         })
 

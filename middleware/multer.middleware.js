@@ -15,12 +15,12 @@ const upload = multer({
     storage: storage,
     fileFilter: function (req, file, cb) {
         if (file.mimetype === 'application/pdf') {
-            cb(null, true); // accept file
+            cb(null, true); //accept file
         } else {
             cb(new Error('Only pdf files are allowed'), false) //doesn't accept the file
         }
     }
 });
 
-// Export Multer middleware to handle single file upload with the field name "resume"
+//Export Multer middleware to handle single file upload with the field name "resume"
 module.exports = upload.single("resume");
