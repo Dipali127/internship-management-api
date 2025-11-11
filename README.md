@@ -107,9 +107,10 @@ To run the `internship` application, follow these steps:
     - Create a new file named `.env` in the root directory of the project.
     - Set the following required environment variables in the `.env` file:
         - `PORT`: Set this variable to the desired port number. By default, the application listens on port 3000.
-        - `DATABASE_CLUSTER_STRING`: Set the variable to the connection string for your MongoDB database cluster.
-        - `secretKey`:  Set the variable to the secret key used for JWT authentication.
+        - `DATABASE_CLUSTER_STRING`: Set this variable to the connection string for your MongoDB database cluster.
+        - `secretKey`:  Set this variable to the secret key used for JWT authentication.
         - `cloudinary_credentials`: Set the CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET variables with your individual Cloudinary credentials for uploading files.
+        - `GEMINI_API_KEY` : Set this variable to your Gemini API key used to interact with the Gemini AI model.
 
 ## Contributing
 Contributions are welcome! If you’d like to improve this project, feel free to fork the repo and submit a pull request.  
