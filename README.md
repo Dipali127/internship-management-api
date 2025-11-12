@@ -65,7 +65,7 @@ Internship-Management-API/
 ## Postman Collection
 
 You can test all APIs using the Postman Collection:
-[Postman Collection](https://bit.ly/internship_management_API)
+[Postman Collection](internship_management_api_collection.json)
 
 ## Running internship application
 
