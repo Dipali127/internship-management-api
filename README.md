@@ -62,10 +62,12 @@ Internship-Management-API/
 * `GET /getAllAppliedStudents/:internshipId` → Company gets all applied students' applications  
 
 
-## Postman Collection
+## 📬 Postman Collection
 
-You can test all APIs using the Postman Collection:
-[Postman Collection](internship_management_api_collection.json)
+Easily test all the Internship Management APIs using the Postman collection below:
+
+[![Run in Postman](https://run.pstmn.io/button.svg)](https://raw.githubusercontent.com/Dipali127/internship-management-api/main/postman/internship_management_api_collection.json)
+
 
 ## Running internship application
 
