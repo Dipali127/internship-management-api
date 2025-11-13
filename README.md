@@ -63,7 +63,6 @@ Internship-Management-API/
 
 
 ## 📬 Postman Collection
-
 Easily test all the Internship Management APIs using the Postman collection below:
 
 [![Run in Postman](https://run.pstmn.io/button.svg)](https://raw.githubusercontent.com/Dipali127/internship-management-api/main/postman/internship_management_api_collection.json)
